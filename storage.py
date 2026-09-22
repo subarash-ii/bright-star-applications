@@ -1,0 +1,1 @@
+APPLICATIONS_MESSAGES: dict[int, dict[int, int]] = {}
