@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from aiogram import Bot, Dispatcher
 
@@ -6,6 +7,14 @@ from config import TOKEN
 from handlers.start import router as start_router
 from handlers.form import router as form_router
 from handlers.process_decision import router as decision_router
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    filename="bot.log",
+    filemode="a",
+    encoding="utf-8"
+)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
