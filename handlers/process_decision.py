@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery
 
-from callbacks.application import ApplicationDecision
+from filters.application import ApplicationDecision
 from enums.actions import Actions
 from enums.statuses import Statuses
 from storage import APPLICATIONS_MESSAGES

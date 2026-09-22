@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from callbacks.application import ApplicationDecision
+from filters.application import ApplicationDecision
 from config import ADMINS
 from enums.actions import Actions
 from enums.statuses import Statuses
