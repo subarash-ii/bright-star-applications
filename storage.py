@@ -9,7 +9,7 @@ def load_applications() -> dict[int, dict[int, int]]:
         return {}
 
     try:
-        with open(APPLICATIONS_PATH, "r", encoding="uft-8") as f:
+        with open(APPLICATIONS_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
 
             return {int(user_id): {int(admin_id): msg_id for admin_id, msg_id in admins.items()}

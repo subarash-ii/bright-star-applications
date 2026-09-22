@@ -8,17 +8,24 @@ from enums.statuses import Statuses
 from storage import APPLICATIONS_MESSAGES, save_applications
 
 
-async def send_admins(bot, data: dict, user_id: int):
+async def send_admins(bot, data: dict):
+    user_id = data.get("tg_id")
+    username = data.get("tg_username")
+
     builder = InlineKeyboardBuilder()
 
     builder.add(
         InlineKeyboardButton(
             text="✅ Принять",
-            callback_data=ApplicationDecision(action=Actions.ACCEPT, user_id=user_id).pack()
+            callback_data=ApplicationDecision(action=Actions.ACCEPT, user_id=user_id, username=username).pack()
         ),
         InlineKeyboardButton(
             text="❌ Отклонить",
-            callback_data=ApplicationDecision(action=Actions.REJECT, user_id=user_id).pack()
+            callback_data=ApplicationDecision(action=Actions.REJECT, user_id=user_id, username=username).pack()
+        ),
+        InlineKeyboardButton(
+            text="🚫 Заблокировать",
+            callback_data=ApplicationDecision(action=Actions.BLOCK, user_id=user_id, username=username).pack()
         )
     )
 

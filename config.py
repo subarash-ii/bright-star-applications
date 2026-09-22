@@ -7,7 +7,7 @@ load_dotenv()
 TOKEN = getenv("TOKEN")
 ADMINS =[x for x in (getenv("ADMINS") or "").split(",") if x]
 APPLICATIONS_PATH = "applications_data.json"
-
+DB_NAME = "database.db"
 
 if not TOKEN:
     raise ValueError("Bot token is missing")

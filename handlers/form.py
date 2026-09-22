@@ -7,6 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from util import remove_at, is_valid_date
 from enums.callback_data import CallbackData
 from handlers.send_admins import send_admins
+from db.active.controller import add_user
 
 router = Router()
 
@@ -14,10 +15,15 @@ class Form(StatesGroup):
     username = State()
     role = State()
     birthday = State()
+    tg_username = State()
+    tg_id = State()
 
 
 @router.message(Form.username)
 async def process_username(message: Message, state: FSMContext):
+    await state.update_data(tg_id=message.from_user.id)
+    await state.update_data(tg_username=message.from_user.username)
+
     await state.update_data(username=remove_at(message.text))
     await state.set_state(Form.role)
 
@@ -71,9 +77,11 @@ async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await state.clear()
 
+    await add_user(data.get("tg_id"), data.get("tg_username"))
+
     await callback.message.answer("Ваша анкета была отправлена админам на рассмотрение")
 
-    await send_admins(callback.bot, data, user_id=callback.from_user.id)
+    await send_admins(callback.bot, data)
 
 
 @router.callback_query(F.data == CallbackData.REWRITE_PRESSED)

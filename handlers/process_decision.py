@@ -5,6 +5,8 @@ from filters.application import ApplicationDecision
 from enums.actions import Actions
 from enums.statuses import Statuses
 from storage import APPLICATIONS_MESSAGES, save_applications
+from db.blacklist.controller import add_user
+from db.active.controller import delete_by_id
 
 router = Router()
 
@@ -14,13 +16,21 @@ async def process_decision(callback: CallbackQuery, callback_data: ApplicationDe
     await callback.answer()
 
     target_user_id = callback_data.user_id
+    target_user_username = callback_data.username
 
     if callback_data.action == Actions.ACCEPT:
         new_status = Statuses.ACCEPTED.value
         user_message = "Ваша анкета была одобрена!"
-    else:
+    elif callback_data.action == Actions.REJECT:
         new_status = Statuses.REJECTED.value
         user_message = "К сожалению, ваша анкета была отклонена."
+    else:
+        new_status = Statuses.BLOCKED.value
+        user_message = None
+        
+        await add_user(target_user_id, target_user_username)
+
+    await delete_by_id(target_user_id)
 
     new_text = callback.message.text.replace(Statuses.PENDING.value, new_status)
     admin_messages = APPLICATIONS_MESSAGES.get(target_user_id, {})
@@ -40,9 +50,10 @@ async def process_decision(callback: CallbackQuery, callback_data: ApplicationDe
     save_applications()
 
     try:
-        await callback.bot.send_message(
-            chat_id=target_user_id,
-            text=user_message
-        )
+        if user_message is not None:
+            await callback.bot.send_message(
+                chat_id=target_user_id,
+                text=user_message
+            )
     except Exception:
         pass

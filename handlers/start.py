@@ -6,6 +6,8 @@ from aiogram.fsm.context import FSMContext
 
 from enums.callback_data import CallbackData
 from handlers.form import Form
+from db.blacklist.controller import is_user_blocked
+from db.active.controller import is_user_active
 
 router = Router()
 
@@ -28,6 +30,18 @@ async def command_start_handler(message: Message):
 async def start_button_handler(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await callback.message.edit_reply_markup(reply_markup=None)
+
+    is_blocked = await is_user_blocked(callback.from_user.id)
+
+    if is_blocked:
+        await callback.message.answer("Вы были заблокированы админами.")
+        return
+
+    is_active = await is_user_active(callback.from_user.id)
+
+    if is_active:
+        await callback.message.answer("Вы уже подали анкету на вступление. Ожидайте рассмотрения админов.")
+        return
 
     await state.set_state(Form.username)
 
