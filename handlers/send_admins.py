@@ -5,7 +5,7 @@ from filters.application import ApplicationDecision
 from config import ADMINS
 from enums.actions import Actions
 from enums.statuses import Statuses
-from storage import APPLICATIONS_MESSAGES
+from storage import APPLICATIONS_MESSAGES, save_applications
 
 
 async def send_admins(bot, data: dict, user_id: int):
@@ -45,3 +45,5 @@ async def send_admins(bot, data: dict, user_id: int):
             APPLICATIONS_MESSAGES[user_id][admin_id] = msg.message_id
         except:
             pass
+
+    save_applications()

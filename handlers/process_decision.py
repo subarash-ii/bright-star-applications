@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 from filters.application import ApplicationDecision
 from enums.actions import Actions
 from enums.statuses import Statuses
-from storage import APPLICATIONS_MESSAGES
+from storage import APPLICATIONS_MESSAGES, save_applications
 
 router = Router()
 
@@ -37,6 +37,7 @@ async def process_decision(callback: CallbackQuery, callback_data: ApplicationDe
             pass
 
     APPLICATIONS_MESSAGES.pop(target_user_id, None)
+    save_applications()
 
     try:
         await callback.bot.send_message(
@@ -45,29 +46,3 @@ async def process_decision(callback: CallbackQuery, callback_data: ApplicationDe
         )
     except Exception:
         pass
-
-    # if callback_data.action == Actions.ACCEPT:
-    #     await callback.message.edit_text(
-    #         f"{callback.message.text.replace(Statuses.PENDING.value, Statuses.ACCEPTED.value)}"
-    #     )
-    #
-    #     try:
-    #         await callback.bot.send_message(
-    #             chat_id=target_user_id,
-    #             text="Ваша анкета была одобрена!"
-    #         )
-    #     except Exception:
-    #         pass
-    #
-    # elif callback_data.action == Actions.REJECT:
-    #     await callback.message.edit_text(
-    #         f"{callback.message.text.replace(Statuses.PENDING.value, Statuses.REJECTED.value)}"
-    #     )
-    #
-    #     try:
-    #         await callback.bot.send_message(
-    #             chat_id=target_user_id,
-    #             text="К сожалению, ваша анкета была отклонена."
-    #         )
-    #     except Exception:
-    #         pass
