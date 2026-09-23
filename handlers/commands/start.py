@@ -6,8 +6,8 @@ from aiogram.fsm.context import FSMContext
 
 from enums.callback_data import CallbackData
 from handlers.form import Form
-from db.blacklist.controller import is_user_blocked
-from db.active.controller import is_user_active
+from db.blacklist.queries import is_user_blocked, get_all_blocked
+from db.active.queries import is_user_active
 
 router = Router()
 

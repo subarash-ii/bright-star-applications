@@ -5,8 +5,8 @@ from filters.application import ApplicationDecision
 from enums.actions import Actions
 from enums.statuses import Statuses
 from storage import APPLICATIONS_MESSAGES, save_applications
-from db.blacklist.controller import add_user
-from db.active.controller import delete_by_id
+from db.blacklist.queries import add_user
+from db.active.queries import delete_by_id
 
 router = Router()
 

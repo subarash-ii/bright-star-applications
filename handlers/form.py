@@ -7,7 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from util import remove_at, is_valid_date
 from enums.callback_data import CallbackData
 from handlers.send_admins import send_admins
-from db.active.controller import add_user
+from db.active.queries import add_user
 
 router = Router()
 
