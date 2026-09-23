@@ -19,6 +19,13 @@ class Form(StatesGroup):
     tg_id = State()
 
 
+_final_message: Message | None = None
+
+
+def get_final_message():
+    return _final_message
+
+
 @router.message(Form.username)
 async def process_username(message: Message, state: FSMContext):
     await state.update_data(tg_id=message.from_user.id)
@@ -56,8 +63,11 @@ async def show_final_applications(message: Message, state: FSMContext):
 
     builder.add(
         InlineKeyboardButton(text="✅ Отправить", callback_data=CallbackData.SEND_ADMINS_PRESSED),
-        InlineKeyboardButton(text="✏️ Изменить", callback_data=CallbackData.REWRITE_PRESSED)
+        InlineKeyboardButton(text="✏️ Изменить", callback_data=CallbackData.REWRITE_PRESSED),
+        InlineKeyboardButton(text="🚫 Отменить", callback_data=CallbackData.CANCEL_PRESSED)
     )
+
+    builder.adjust(2)
 
     text = (
         f"Проверьте правильно ли вы заполнили анкету\n\n"
@@ -66,7 +76,8 @@ async def show_final_applications(message: Message, state: FSMContext):
         f"День рождения: {data.get("birthday")}"
     )
 
-    await message.answer(text, reply_markup=builder.as_markup())
+    global _final_message
+    _final_message = await message.answer(text, reply_markup=builder.as_markup())
 
 
 @router.callback_query(F.data == CallbackData.SEND_ADMINS_PRESSED)
@@ -75,7 +86,10 @@ async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_reply_markup(reply_markup=None)
 
     data = await state.get_data()
+
     await state.clear()
+    global _final_message
+    _final_message = None
 
     await add_user(data.get("tg_id"), data.get("tg_username"))
 
@@ -86,10 +100,23 @@ async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == CallbackData.REWRITE_PRESSED)
 async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
     await callback.message.delete()
 
     await state.clear()
+    global _final_message
+    _final_message = None
+
     await state.set_state(Form.username)
 
     await callback.message.answer("Введите свой юз (@ необязательна)")
+
+
+@router.callback_query(F.data == CallbackData.CANCEL_PRESSED)
+async def cancel_send_handler(callback: CallbackQuery, state: FSMContext):
+    await callback.message.delete()
+
+    await state.clear()
+    global _final_message
+    _final_message = None
+
+    await callback.message.answer("Вы отменили отправку анкеты.")

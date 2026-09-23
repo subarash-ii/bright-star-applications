@@ -6,8 +6,9 @@ from aiogram.fsm.context import FSMContext
 
 from enums.callback_data import CallbackData
 from handlers.form import Form
-from db.blacklist.queries import is_user_blocked, get_all_blocked
+from db.blacklist.queries import is_user_blocked
 from db.active.queries import is_user_active
+from handlers.form import get_final_message
 
 router = Router()
 
@@ -42,6 +43,11 @@ async def start_button_handler(callback: CallbackQuery, state: FSMContext):
     if is_active:
         await callback.message.answer("Вы уже подали анкету на вступление. Ожидайте рассмотрения админов.")
         return
+
+    final_message = get_final_message()
+
+    if final_message is not None:
+        await final_message.delete()
 
     await state.set_state(Form.username)
 
