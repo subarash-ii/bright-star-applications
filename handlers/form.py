@@ -7,7 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from util import remove_at, is_valid_date
 from enums.callback_data import CallbackData
 from handlers.send_admins import send_admins
-from db.active.queries import add_user
+from db.active.queries import add_active
 
 router = Router()
 
@@ -91,7 +91,7 @@ async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
     global _final_message
     _final_message = None
 
-    await add_user(data.get("tg_id"), data.get("tg_username"))
+    await add_active(data.get("tg_id"), data.get("tg_username"))
 
     await callback.message.answer("Ваша анкета была отправлена админам на рассмотрение")
 

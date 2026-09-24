@@ -5,8 +5,8 @@ from filters.application import ApplicationDecision
 from enums.actions import Actions
 from enums.statuses import Statuses
 from storage import APPLICATIONS_MESSAGES, save_applications
-from db.blacklist.queries import add_user
-from db.active.queries import delete_by_id
+from db.blacklist.queries import block_user
+from db.active.queries import delete_active_by_id
 
 router = Router()
 
@@ -28,9 +28,9 @@ async def process_decision(callback: CallbackQuery, callback_data: ApplicationDe
         new_status = Statuses.BLOCKED.value
         user_message = None
         
-        await add_user(target_user_id, target_user_username)
+        await block_user(target_user_id, target_user_username)
 
-    await delete_by_id(target_user_id)
+    await delete_active_by_id(target_user_id)
 
     new_text = callback.message.text.replace(Statuses.PENDING.value, new_status)
     admin_messages = APPLICATIONS_MESSAGES.get(target_user_id, {})

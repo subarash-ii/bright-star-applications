@@ -5,6 +5,10 @@ applications_data.json
 *.db
 *.db-journal
 
+# Pyrogram sessions
+*.session
+*.session-journal
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
