@@ -1,3 +1,4 @@
+import html
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -16,14 +17,13 @@ async def command_blacklist_handler(message: Message):
     all_blocked = await get_all_blocked()
 
     if len(all_blocked) == 0:
-        await message.answer("В чёрном списке ещё никого нет.")
+        await message.answer("📜 <b>Чёрный список пуст.</b>")
         return
 
-    text = (
-        "Чёрный список: \n\n"
-    )
+    text = "⛔ <b>Чёрный список:</b>\n\n"
 
     for blocked in all_blocked:
-        text += f"@{blocked["username"]}\n"
+        clean_username = html.escape(str(blocked["username"]))
+        text += f"• @{clean_username}\n"
 
     await message.answer(text)

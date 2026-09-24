@@ -1,3 +1,4 @@
+import html
 from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -10,6 +11,7 @@ from handlers.send_admins import send_admins
 from db.active.queries import add_active
 
 router = Router()
+
 
 class Form(StatesGroup):
     username = State()
@@ -34,7 +36,9 @@ async def process_username(message: Message, state: FSMContext):
     await state.update_data(username=remove_at(message.text))
     await state.set_state(Form.role)
 
-    await message.answer("Введите роль")
+    await message.answer(
+        "🎭 <b>Укажите вашу роль:</b>"
+    )
 
 
 @router.message(Form.role)
@@ -42,13 +46,18 @@ async def process_role(message: Message, state: FSMContext):
     await state.update_data(role=message.text.title())
     await state.set_state(Form.birthday)
 
-    await message.answer("Введите дату своего дня рожения в формате дд.мм.гггг")
+    await message.answer(
+        "🎂 <b>Введите дату рождения</b> <i>(в формате ДД.ММ.ГГГГ):</i>"
+    )
 
 
 @router.message(Form.birthday)
 async def process_birthday(message: Message, state: FSMContext):
     if not is_valid_date(message.text):
-        await message.answer("Введённая вами дата не соотвествует формату. Попробуйте ещё раз")
+        await message.answer(
+            "⚠️ <b>Некорректный формат даты</b>\n\n"
+            "Пожалуйста, введите дату строго в формате <b>ДД.ММ.ГГГГ</b> (например, <code>25.12.2000</code>)."
+        )
         return
 
     await state.update_data(birthday=message.text)
@@ -69,11 +78,16 @@ async def show_final_applications(message: Message, state: FSMContext):
 
     builder.adjust(2)
 
+    username_val = html.escape(str(data.get("username", "")))
+    role_val = html.escape(str(data.get("role", "")))
+    birthday_val = html.escape(str(data.get("birthday", "")))
+
     text = (
-        f"Проверьте правильно ли вы заполнили анкету\n\n"
-        f"Юз: @{data.get("username")}\n"
-        f"Роль: {data.get("role")}\n"
-        f"День рождения: {data.get("birthday")}"
+        f"📋 <b>Проверьте правильность заполнения анкеты:</b>\n\n"
+        f"👤 <b>Юзернейм:</b> @{username_val}\n"
+        f"🎭 <b>Роль:</b> {role_val}\n"
+        f"🎂 <b>Дата рождения:</b> {birthday_val}\n\n"
+        f"Всё верно? Нажмите кнопку <b>«Отправить»</b> для передачи анкеты администраторам."
     )
 
     global _final_message
@@ -93,13 +107,16 @@ async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
 
     await add_active(data.get("tg_id"), data.get("tg_username"))
 
-    await callback.message.answer("Ваша анкета была отправлена админам на рассмотрение")
+    await callback.message.answer(
+        "🎉 <b>Анкета успешно отправлена!</b>\n\n"
+        "Ваша заявка передана администраторам на рассмотрение. Ожидайте решения!"
+    )
 
     await send_admins(callback.bot, data)
 
 
 @router.callback_query(F.data == CallbackData.REWRITE_PRESSED)
-async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
+async def rewrite_handler(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete()
 
     await state.clear()
@@ -108,7 +125,10 @@ async def send_admins_handler(callback: CallbackQuery, state: FSMContext):
 
     await state.set_state(Form.username)
 
-    await callback.message.answer("Введите свой юз (@ необязательна)")
+    await callback.message.answer(
+        "🔄 <b>Заполнение анкеты заново</b>\n\n"
+        "👤 <b>Введите ваш юзернейм:</b>"
+    )
 
 
 @router.callback_query(F.data == CallbackData.CANCEL_PRESSED)
@@ -119,4 +139,7 @@ async def cancel_send_handler(callback: CallbackQuery, state: FSMContext):
     global _final_message
     _final_message = None
 
-    await callback.message.answer("Вы отменили отправку анкеты.")
+    await callback.message.answer(
+        "❌ <b>Заполнение анкеты отменено.</b>\n\n"
+        "Если захотите заполнить заявку позже, используйте команду /start."
+    )

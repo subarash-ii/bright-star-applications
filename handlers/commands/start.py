@@ -17,7 +17,7 @@ router = Router()
 async def command_start_handler(message: Message):
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(
-        text="Заполнить анкету",
+        text="📝 Заполнить анкету",
         callback_data=CallbackData.START_PRESSED
     ))
 
@@ -35,13 +35,19 @@ async def start_button_handler(callback: CallbackQuery, state: FSMContext):
     is_blocked = await is_user_blocked(callback.from_user.id)
 
     if is_blocked:
-        await callback.message.answer("Вы были заблокированы админами.")
+        await callback.message.answer(
+            "🚫 <b>Доступ ограничен</b>\n\n"
+            "Вы были заблокированы администрацией и не можете подать анкету."
+        )
         return
 
     is_active = await is_user_active(callback.from_user.id)
 
     if is_active:
-        await callback.message.answer("Вы уже подали анкету на вступление. Ожидайте рассмотрения админов.")
+        await callback.message.answer(
+            "⏳ <b>Заявка уже отправлена</b>\n\n"
+            "Ваша анкета находится на рассмотрении у администрации. Пожалуйста, ожидайте решения."
+        )
         return
 
     final_message = get_final_message()
@@ -51,4 +57,6 @@ async def start_button_handler(callback: CallbackQuery, state: FSMContext):
 
     await state.set_state(Form.username)
 
-    await callback.message.answer("Введите свой юз (@ необязательна)")
+    await callback.message.answer(
+        "👤 <b>Введите ваш юзернейм:</b>"
+    )

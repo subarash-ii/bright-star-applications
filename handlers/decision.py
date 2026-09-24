@@ -1,3 +1,4 @@
+import html
 from aiogram import Router
 from aiogram.types import CallbackQuery
 
@@ -20,19 +21,21 @@ async def process_decision(callback: CallbackQuery, callback_data: ApplicationDe
 
     if callback_data.action == Actions.ACCEPT:
         new_status = Statuses.ACCEPTED.value
-        user_message = "Ваша анкета была одобрена!"
+        user_message = "🎉 <b>Ваша анкета была одобрена!</b>"
     elif callback_data.action == Actions.REJECT:
         new_status = Statuses.REJECTED.value
-        user_message = "К сожалению, ваша анкета была отклонена."
+        user_message = "❌ <b>К сожалению, ваша анкета была отклонена.</b>"
     else:
         new_status = Statuses.BLOCKED.value
         user_message = None
-        
+
         await block_user(target_user_id, target_user_username)
 
     await delete_active_by_id(target_user_id)
 
-    new_text = callback.message.text.replace(Statuses.PENDING.value, new_status)
+    original_html_text = callback.message.html_text or callback.message.text
+    new_text = original_html_text.replace(str(Statuses.PENDING), str(new_status))
+
     admin_messages = APPLICATIONS_MESSAGES.get(target_user_id, {})
 
     for admin_id, msg_id in admin_messages.items():

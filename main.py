@@ -4,6 +4,8 @@ import logging
 asyncio.set_event_loop(asyncio.new_event_loop())
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from config import TOKEN
 from pyrogram_app import app
@@ -24,7 +26,10 @@ logging.basicConfig(
     encoding="utf-8"
 )
 
-bot = Bot(token=TOKEN)
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
 dp = Dispatcher()
 
 

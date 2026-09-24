@@ -1,3 +1,4 @@
+import html
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -31,12 +32,16 @@ async def send_admins(bot, data: dict):
 
     builder.adjust(2)
 
+    username_val = html.escape(str(data.get("username", "")))
+    role_val = html.escape(str(data.get("role", "")))
+    birthday_val = html.escape(str(data.get("birthday", "")))
+
     text = (
-        f"Новая анкета на вступление\n\n"
-        f"Юз: @{data.get("username")}\n"
-        f"Роль: {data.get("role")}\n"
-        f"День рождения: {data.get("birthday")}\n\n"
-        f"Статус: {Statuses.PENDING}"
+        f"📥 <b>Новая заявка на вступление</b>\n\n"
+        f"👤 <b>Юзернейм:</b> @{username_val}\n"
+        f"🎭 <b>Роль:</b> {role_val}\n"
+        f"🎂 <b>Дата рождения:</b> {birthday_val}\n"
+        f"📌 <b>Статус:</b> {Statuses.PENDING}"
     )
 
     APPLICATIONS_MESSAGES[user_id] = {}
@@ -50,7 +55,7 @@ async def send_admins(bot, data: dict):
             )
 
             APPLICATIONS_MESSAGES[user_id][admin_id] = msg.message_id
-        except:
+        except Exception:
             pass
 
     save_applications()
