@@ -37,7 +37,7 @@ async def send_admins(bot, data: dict):
     birthday_val = html.escape(str(data.get("birthday", "")))
 
     text = (
-        f"📥 <b>Новая заявка на вступление</b>\n\n"
+        f"📥 <b>Новая анкета на вступление</b>\n\n"
         f"👤 <b>Юзернейм:</b> @{username_val}\n"
         f"🎭 <b>Роль:</b> {role_val}\n"
         f"🎂 <b>Дата рождения:</b> {birthday_val}\n"
